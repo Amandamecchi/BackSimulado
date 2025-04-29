@@ -1,9 +1,16 @@
 const pool = require("../config/database");
 const { get } = require("../routes/marcaRoutes");
 
-const getCosmeticos = async () => {
-    const query = "SELECT * FROM cosmeticos"; 
-    const result = await pool.query(query);
+const getCosmeticos = async (marcaFilter) => {
+    let query = "SELECT cosmeticos.*, marcas.name AS marca_name FROM cosmeticos LEFT JOIN marcas ON cosmeticos.marca_id = marcas.id";
+    let values = [];
+    
+    if (marcaFilter) {
+        query += " WHERE marcas.name ILIKE $1";
+        values.push(`%${marcaFilter}%`);
+    }
+    
+    const result = await pool.query(query, values);
     return result.rows;
 };
 
@@ -28,7 +35,7 @@ const deleteCosmetico = async (id) => {
     const result = await pool.query("DELETE FROM cosmeticos WHERE id = $1 RETURNING *", [id]);
 
     if (result.rowCount === 0) {
-        return { error: "Bruxo não encontrado." };
+        return { error: "Cosmético não encontrado." };
     }
 
     return { message: "Bruxo deletado com sucesso." };

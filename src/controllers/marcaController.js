@@ -12,10 +12,11 @@ const getAllMarcas = async (req, res) => {
 
 const getMarca = async (req, res) => {
     try {
-        const house = await marcaModel.getMarcaById(req.params.id);
-        if (!house) {
+        const marca = await marcaModel.getMarcaById(req.params.id);
+        if (!marca) {
             return res.status(404).json({ error: "Marca não encontrada" });
         };
+        res.status(200).json(marca);
         } catch (error) {
             res.status(500).json({ error: "Erro ao obter marca" });
         }
@@ -48,12 +49,12 @@ const deleteMarca = async (req, res) => {
 
 const updateMarca = async (req, res) => {
     try {
-        const { name, founder } = req.body;
-        if (!name || !founder) {
-            return res.status(400).json({ error: "Todos os campos são obrigatórios: name, founder" });
+        const { name, pais_origem } = req.body;
+        if (!name || !pais_origem) {
+            return res.status(400).json({ error: "Todos os campos são obrigatórios: name, pais_origem" });
         }
 
-        const updatedMarca = await marcaModel.updateMarca(req.params.id, name, founder);
+        const updatedMarca = await marcaModel.updateMarca(req.params.id, name, pais_origem);
 
         if (!updatedMarca) {
             return res.status(404).json({ error: "Marca não encontrada" });

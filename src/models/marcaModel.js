@@ -17,10 +17,10 @@ const createMarca = async (name, pais_origem) => {
     return result.rows[0];
 };
 
-const updateMarca = async (id, name, founder) => {
+const updateMarca = async (id, name, pais_origem) => {
     const result = await pool.query(
-        "UPDATE marcas SET name = $1, founder = $2 WHERE id = $3 RETURNING *",
-        [name, founder, id]
+        "UPDATE marcas SET name = $1, pais_origem = $2 WHERE id = $3 RETURNING *",
+        [name, pais_origem, id]
     );
     return result.rows[0];
 };

@@ -1,24 +1,24 @@
 const cosmeticoModel = require("../models/cosmeticoModel");
 
-const getAllCosmeticos = async (req, res) => {
-    try {
-        const cosmeticos = await cosmeticoModel.getCosmeticos();
-        res.status(200).json(cosmeticos);
-    } catch (error) {
-        console.error("Erro ao obter cosméticos:", error);
-        res.status(500).json({ error: "Erro ao obter cosméticos" });
+const getCosmeticos = async (marcaFilter) => {
+    let query = "SELECT cosmeticos.*, marcas.name AS marca_name FROM cosmeticos LEFT JOIN marcas ON cosmeticos.marca_id = marcas.id";
+    let values = [];
+    
+    if (marcaFilter) {
+        query += " WHERE marcas.name ILIKE $1";
+        values.push(`%${marcaFilter}%`);
     }
+    
+    const result = await pool.query(query, values);
+    return result.rows;
 };
 
 const getCosmetico = async (req, res) => {
     try {
-        const cosmetico = await cosmeticoModel.getCosmeticoById(req.params.id);
-        if (!cosmetico) {
-            return res.status(404).json({ error: "Cosmético não encontrado" });
-        }
-        res.status(200).json(cosmetico);
+        const { marca, precoMin, precoMax } = req.query;
+        const cosmeticos = await cosmeticoModel.getCosmeticos({ marca, precoMin, precoMax });
+        res.status(200).json(cosmeticos);
     } catch (error) {
-        console.error("Erro ao obter cosmético:", error);
         res.status(500).json({ error: "Erro ao obter cosmético" });
     }
 };
