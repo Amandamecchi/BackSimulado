@@ -5,5 +5,7 @@ const cosmeticoController = require("../controllers/cosmeticoController");
 router.get("/", cosmeticoController.getAllCosmeticos);
 router.get("/:id", cosmeticoController.getCosmetico);
 router.post("/", cosmeticoController.createCosmetico);
+router.put("/:id", cosmeticoController.updateCosmetico);
+router.delete("/:id", cosmeticoController.deleteCosmetico);
 
 module.exports = router;

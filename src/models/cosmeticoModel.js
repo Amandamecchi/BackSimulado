@@ -1,22 +1,50 @@
-const pool = require ('../config/database.js');
+const pool = require("../config/database");
+const { get } = require("../routes/marcaRoutes");
 
-const  getCosmeticos = async () => {
-    const result = await pool.query('SELECT cosmeticos.* FROM marcas.name AS marca, FROM  cosmeticos Left join marcas ON cosmeticos.marca_id ');
-    return result[0];
+const getCosmeticos = async (name) => {
+    const query = "SELECT * FROM cosmeticos"; 
+    const result = await pool.query(query);
+    return result.rows;
 };
 
-const getCosmeticosById = async (id) => {
-    const result = await pool.query('SELECT cosmeticos.* , marcas.name AS marca_name FROM cosmeticos LEFT JOIN houses ON cosmeticos.marcas_id = houses.id WHERE cosmeticos.id = $1', [id]);
+const getCosmeticoById = async (id) => {
+    const result = await pool.query(
+        `SELECT cosmeticos.*, marcas.name AS marca_name 
+        FROM cosmeticos 
+        LEFT JOIN marcas ON cosmeticos.marca_id = marcas.id 
+        WHERE cosmeticos.id = $1`, [id]
+    );
     return result.rows[0];
 };
 
-const createCosmetico = async (name, marca_id) => {
-    const result = await pool.query('INSERT INTO cosmeticos (name, marca_id) VALUES ($1, $2) RETURNING *', [name, marca_id]);
+const createCosmetico = async (name, marca, preco) => {
+    const query = "INSERT INTO cosmeticos (name, marca, preco) VALUES ($1, $2, $3) RETURNING *";
+    const values = [name, marca, preco];
+    const result = await pool.query(query, values);
+    return result.rows[0];
+};
+
+const deleteCosmetico = async (id) => {
+    const result = await pool.query("DELETE FROM cosmeticos WHERE id = $1 RETURNING *", [id]);
+
+    if (result.rowCount === 0) {
+        return { error: "Bruxo não encontrado." };
+    }
+
+    return { message: "Bruxo deletado com sucesso." };
+};
+
+const updateCosmetico = async (id, name, marca, preco) => {
+    const query = "UPDATE cosmeticos SET name = $1, marca = $2, preco = $3 WHERE id = $4 RETURNING *";
+    const values = [name, marca, preco, id];
+    const result = await pool.query(query, values);
     return result.rows[0];
 };
 
 module.exports = {
     getCosmeticos,
-    getCosmeticosById,
+    getCosmeticoById,
+    deleteCosmetico,
     createCosmetico,
+    updateCosmetico,
 };
