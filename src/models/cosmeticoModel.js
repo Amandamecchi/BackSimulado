@@ -1,7 +1,7 @@
 const pool = require("../config/database");
 const { get } = require("../routes/marcaRoutes");
 
-const getCosmeticos = async (name) => {
+const getCosmeticos = async () => {
     const query = "SELECT * FROM cosmeticos"; 
     const result = await pool.query(query);
     return result.rows;
