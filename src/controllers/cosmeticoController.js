@@ -1,23 +1,21 @@
 const cosmeticoModel = require("../models/cosmeticoModel");
 
-const getCosmeticos = async (marcaFilter) => {
-    let query = "SELECT cosmeticos.*, marcas.name AS marca_name FROM cosmeticos LEFT JOIN marcas ON cosmeticos.marca_id = marcas.id";
-    let values = [];
-    
-    if (marcaFilter) {
-        query += " WHERE marcas.name ILIKE $1";
-        values.push(`%${marcaFilter}%`);
+const getAllCosmeticos = async (req, res) => {
+    try {
+        const cosmeticos = await cosmeticoModel.getCosmeticos(req.query);
+        res.status(200).json(cosmeticos);
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao obter cosméticos" });
     }
-    
-    const result = await pool.query(query, values);
-    return result.rows;
 };
 
 const getCosmetico = async (req, res) => {
     try {
-        const { marca, precoMin, precoMax } = req.query;
-        const cosmeticos = await cosmeticoModel.getCosmeticos({ marca, precoMin, precoMax });
-        res.status(200).json(cosmeticos);
+        const cosmetico = await cosmeticoModel.getCosmeticoById(req.params.id);
+        if (!cosmetico) {
+            return res.status(404).json({ error: "Cosmético não encontrado" });
+        }
+        res.status(200).json(cosmetico);
     } catch (error) {
         res.status(500).json({ error: "Erro ao obter cosmético" });
     }
@@ -25,30 +23,28 @@ const getCosmetico = async (req, res) => {
 
 const createCosmetico = async (req, res) => {
     try {
-        console.log(req.body);
-        const { name, marca, preco } = req.body;
+        const { name, preco, marca_id } = req.body;
 
-        if (!name || !marca || !preco) {
-            return res.status(400).json({ error: "Todos os campos são obrigatórios: name, marca, preco" });
+        if (!name || !preco || !marca_id) {
+            return res.status(400).json({ error: "Todos os campos são obrigatórios: name, preco, marca_id" });
         }
 
-        const newCosmetico = await cosmeticoModel.createCosmetico(name, marca, preco);
+        const newCosmetico = await cosmeticoModel.createCosmetico(name, preco, marca_id);
         res.status(201).json(newCosmetico);
     } catch (error) {
-        console.error("Erro ao criar cosmético:", error);
         res.status(500).json({ error: "Erro ao criar cosmético" });
     }
 };
 
 const updateCosmetico = async (req, res) => {
     try {
-        const { name, marca, preco } = req.body;
+        const { name, preco, marca_id } = req.body;
 
-        if (!name || !marca || !preco) {
-            return res.status(400).json({ error: "Todos os campos são obrigatórios: name, marca, preco" });
+        if (!name || !preco || !marca_id) {
+            return res.status(400).json({ error: "Todos os campos são obrigatórios: name, preco, marca_id" });
         }
 
-        const updatedCosmetico = await cosmeticoModel.updateCosmetico(req.params.id, name, marca, preco);
+        const updatedCosmetico = await cosmeticoModel.updateCosmetico(req.params.id, name, preco, marca_id);
 
         if (!updatedCosmetico) {
             return res.status(404).json({ error: "Cosmético não encontrado" });
@@ -56,7 +52,6 @@ const updateCosmetico = async (req, res) => {
 
         res.status(200).json(updatedCosmetico);
     } catch (error) {
-        console.error("Erro ao atualizar cosmético:", error);
         res.status(500).json({ error: "Erro ao atualizar cosmético" });
     }
 };
@@ -64,7 +59,7 @@ const updateCosmetico = async (req, res) => {
 const deleteCosmetico = async (req, res) => {
     try {
         const message = await cosmeticoModel.deleteCosmetico(req.params.id);
-        res.status(200).json(message);
+        res.status(200).json(result);
     } catch (error) {
         console.error("Erro ao deletar cosmético:", error);
         res.status(500).json({ error: "Erro ao deletar cosmético" });

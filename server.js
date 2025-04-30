@@ -11,7 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/cosmeticos", cosmeticoRoutes);
+app.use("/", cosmeticoRoutes);
 app.use("/api/marcas", marcaRoutes);
 app.use("/api", reportRoutes);
 
